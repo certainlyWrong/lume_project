@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "Lume Project"
+		},
+		{
+			"path": "lume",
+			"name": "Lume"
+		},
+		{
+			"path": "lume/example",
+			"name": "Example"
+		}
+	],
+	"settings": {}
+}

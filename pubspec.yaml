@@ -1,0 +1,8 @@
+name: lume_project
+publish_to: none
+
+environment:
+  sdk: ^3.11.0
+
+workspace:
+  - lume
