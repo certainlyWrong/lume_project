@@ -1,5 +1,5 @@
 name: lume
-description: "A new Flutter project."
+description: "High-performance image processing for Flutter using Rust. Features LumeImage (basic ops), LumeCanvas (advanced filters/edges/drawing), and Flutter widgets."
 
 repository: https://github.com/certainlyWrong/lume_project/tree/main/lume
 homepage: https://github.com/certainlyWrong/lume_project/tree/main/lume
