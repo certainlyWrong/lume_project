@@ -11,6 +11,10 @@
 		{
 			"path": "lume/example",
 			"name": "Example"
+		},
+		{
+			"path": "mandelbrot",
+			"name": "Mandelbrot"
 		}
 	],
 	"settings": {}
