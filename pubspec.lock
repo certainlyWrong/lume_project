@@ -174,9 +174,10 @@ packages:
   rust_lib_lume:
     dependency: transitive
     description:
-      path: "lume/rust_builder"
-      relative: true
-    source: path
+      name: rust_lib_lume
+      sha256: d46bc81ec842c74f5734b8b56ab1f4abecab4d949d8f8428c509ed77a8710e5c
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.1"
   sky_engine:
     dependency: transitive

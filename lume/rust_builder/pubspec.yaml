@@ -1,7 +1,8 @@
 name: rust_lib_lume
-description: "Utility to build Rust code"
+description: "Utility to build Rust code for lume"
 version: 0.0.1
-publish_to: none
+repository: https://github.com/certainlyWrong/lume_project
+homepage: https://github.com/certainlyWrong/lume_project
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
