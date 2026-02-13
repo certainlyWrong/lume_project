@@ -15,6 +15,10 @@
 		{
 			"path": "mandelbrot",
 			"name": "Mandelbrot"
+		},
+		{
+			"path": "lume_vision",
+			"name": "LumeVision"
 		}
 	],
 	"settings": {}

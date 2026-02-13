@@ -7,3 +7,4 @@ environment:
 workspace:
   - lume
   - mandelbrot
+  - lume_vision

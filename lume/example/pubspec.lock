@@ -170,6 +170,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  plugin_platform_interface:
+    dependency: transitive
+    description:
+      name: plugin_platform_interface
+      sha256: "4820fbfdb9478b1ebae27888254d445073732dae3d6ea81f0b7e06d5dedc3f02"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.8"
+  rust_lib_lume:
+    dependency: transitive
+    description:
+      name: rust_lib_lume
+      sha256: d46bc81ec842c74f5734b8b56ab1f4abecab4d949d8f8428c509ed77a8710e5c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   sky_engine:
     dependency: transitive
     description: flutter
