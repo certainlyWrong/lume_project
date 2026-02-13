@@ -1,3 +1,8 @@
+## 1.0.1+2
+
+- Updated pubspec dependencies for pub.dev publishing
+- Added rust_lib_lume hosted dependency
+
 ## 1.0.0
 
 - Initial release
