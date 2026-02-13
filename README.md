@@ -12,6 +12,11 @@ lume_project/
 │   ├── example/         # Demo app with visual examples
 │   └── README.md        # 📖 Full documentation
 │
+├── mandelbrot/          # 🌀 GLSL fractal demo + Lume processing showcase
+│   ├── lib/            # Mandelbrot shader app
+│   ├── shaders/        # GLSL fragment shaders
+│   └── README.md       # Demo documentation
+│
 ├── lume.code-workspace  # VS Code workspace configuration
 └── README.md            # This file
 ```
@@ -29,6 +34,7 @@ lume_project/
 - 📦 **Package**: [`lume/`](./lume/)
 - 📖 **Full Documentation**: [`lume/README.md`](./lume/README.md)
 - 🎨 **Example App**: [`lume/example/`](./lume/example/)
+- 🌀 **Mandelbrot Demo**: [`mandelbrot/`](./mandelbrot/) — GLSL shaders + Lume processing
 - 🔧 **Workspace**: [`lume.code-workspace`](./lume.code-workspace)
 
 ## Getting Started
