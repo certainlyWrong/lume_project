@@ -4,7 +4,7 @@ description: "High-performance image processing for Flutter using Rust. Features
 repository: https://github.com/certainlyWrong/lume_project/tree/main/lume
 homepage: https://github.com/certainlyWrong/lume_project/tree/main/lume
 
-version: 1.0.2
+version: 1.0.3
 
 environment:
   sdk: ^3.11.0
