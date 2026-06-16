@@ -1,3 +1,8 @@
+## 1.0.5
+
+- Fixed local development setup: rust_lib_lume uses path dependency
+- Publish workflow converts to hosted dependency automatically
+
 ## 1.0.4
 
 - Added CocoaPods support for macOS and iOS
