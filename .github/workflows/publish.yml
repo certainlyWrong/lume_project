@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write  # obrigatorio para OIDC com pub.dev
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
