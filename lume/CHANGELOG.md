@@ -1,3 +1,7 @@
+## 1.0.6
+
+- Fixed rust_lib_lume dependency to use hosted pub.dev version
+
 ## 1.0.5
 
 - Fixed local development setup: rust_lib_lume uses path dependency
