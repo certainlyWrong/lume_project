@@ -1,0 +1,111 @@
+# Publishes rust_lib_lume and/or lume to pub.dev.
+#
+# SETUP REQUIRED (once per package, on pub.dev):
+#   Package page → Admin → Automated publishing → GitHub Actions
+#   Repository : certainlyWrong/lume_project
+#   Tag pattern: v*
+#
+# RELEASE FLOW:
+#   1. Bump version(s) in pubspec.yaml + update CHANGELOG.md
+#   2. Commit and push to main
+#   3. git tag v<semver> && git push --tags   ← triggers this workflow
+#
+# MANUAL RUN:
+#   Actions → "Publish to pub.dev" → Run workflow → choose package
+
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package to publish
+        required: true
+        default: both
+        type: choice
+        options:
+          - rust_lib_lume
+          - lume
+          - both
+
+# Required for pub.dev OIDC automated publishing (no token secrets needed).
+permissions:
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to pub.dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # ── rust_lib_lume ────────────────────────────────────────────────────────
+
+      - name: Publish rust_lib_lume
+        if: |
+          github.event_name == 'push' ||
+          github.event.inputs.package == 'rust_lib_lume' ||
+          github.event.inputs.package == 'both'
+        working-directory: lume/rust_builder
+        run: flutter pub publish --force
+
+      # pub.dev can take up to 10 minutes to index a new version.
+      # Poll until rust_lib_lume is available before publishing lume.
+      - name: Wait for rust_lib_lume to be indexed on pub.dev
+        if: |
+          github.event_name == 'push' ||
+          github.event.inputs.package == 'both'
+        run: |
+          VERSION=$(grep '^version:' lume/rust_builder/pubspec.yaml | awk '{print $2}')
+          echo "Polling pub.dev for rust_lib_lume $VERSION..."
+          for i in $(seq 1 20); do
+            if curl -sf "https://pub.dev/api/packages/rust_lib_lume/versions/$VERSION" > /dev/null; then
+              echo "rust_lib_lume $VERSION is available on pub.dev"
+              exit 0
+            fi
+            echo "[$i/20] Not yet indexed, retrying in 30s..."
+            sleep 30
+          done
+          echo "::error::Timed out waiting for rust_lib_lume $VERSION"
+          exit 1
+
+      # ── lume ─────────────────────────────────────────────────────────────────
+
+      # lume/pubspec.yaml uses `resolution: workspace` for local development,
+      # which is not valid when published to pub.dev. Remove it before publishing.
+      # Also normalise rust_lib_lume to a hosted constraint if it's a path dep.
+      - name: Prepare lume/pubspec.yaml for pub.dev
+        if: |
+          github.event_name == 'push' ||
+          github.event.inputs.package == 'lume' ||
+          github.event.inputs.package == 'both'
+        run: |
+          RUST_VERSION=$(grep '^version:' lume/rust_builder/pubspec.yaml | awk '{print $2}')
+
+          sed -i '/^resolution: workspace$/d' lume/pubspec.yaml
+
+          perl -i -0pe \
+            "s/  rust_lib_lume:\\n    path: rust_builder/  rust_lib_lume: ^$RUST_VERSION/" \
+            lume/pubspec.yaml
+
+          echo "--- lume/pubspec.yaml after preparation ---"
+          cat lume/pubspec.yaml
+
+      - name: Publish lume
+        if: |
+          github.event_name == 'push' ||
+          github.event.inputs.package == 'lume' ||
+          github.event.inputs.package == 'both'
+        working-directory: lume
+        run: flutter pub publish --force

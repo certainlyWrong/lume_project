@@ -1,3 +1,9 @@
+## 1.0.2
+
+- Updated to flutter_rust_bridge 2.12.0
+- Updated rust_lib_lume to 1.0.2
+- Added Linux and Windows FFI plugin support
+
 ## 1.0.1+2
 
 - Updated pubspec dependencies for pub.dev publishing
