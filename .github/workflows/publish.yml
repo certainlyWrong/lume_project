@@ -1,18 +1,17 @@
 # Publishes rust_lib_lume and/or lume to pub.dev via OIDC (no secrets needed).
 #
-# AUTH SETUP (once, per package):
-#   pub.dev -> package page -> Admin -> Automated publishing -> GitHub Actions
+# AUTH SETUP (once, per package on pub.dev):
+#   Package page -> Admin -> Automated publishing -> GitHub Actions
 #   Repository : certainlyWrong/lume_project
-#   Tag pattern : <deixar vazio>   <- vazio permite workflow_dispatch via OIDC;
-#                                     com "v*" apenas push de tag funciona
+#   Tag pattern: v{{version}}
+#
+# pub.dev so aceita OIDC quando o workflow e disparado por push de tag.
+# workflow_dispatch nao funciona com OIDC e sera rejeitado pelo pub.dev.
 #
 # RELEASE FLOW:
-#   1. Bump version em pubspec.yaml (rust_builder + lume se necessario)
+#   1. Bump version em pubspec.yaml (rust_builder + lume)
 #   2. Adicione entrada ## <version> no CHANGELOG.md de cada pacote
 #   3. git tag v<semver> && git push --tags   <- dispara este workflow
-#
-# MANUAL RUN:
-#   Actions -> "Publish to pub.dev" -> Run workflow -> escolha o pacote
 
 name: Publish to pub.dev
 
@@ -20,18 +19,6 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
-
-  workflow_dispatch:
-    inputs:
-      package:
-        description: Package to publish
-        required: true
-        default: both
-        type: choice
-        options:
-          - rust_lib_lume
-          - lume
-          - both
 
 jobs:
   publish:
@@ -52,10 +39,6 @@ jobs:
       # ── rust_lib_lume ────────────────────────────────────────────────────────
 
       - name: Validate rust_lib_lume CHANGELOG
-        if: |
-          github.event_name == 'push' ||
-          github.event.inputs.package == 'rust_lib_lume' ||
-          github.event.inputs.package == 'both'
         run: |
           VERSION=$(grep '^version:' lume/rust_builder/pubspec.yaml | awk '{print $2}')
           if ! grep -qE "^## $VERSION" lume/rust_builder/CHANGELOG.md; then
@@ -65,19 +48,12 @@ jobs:
           fi
 
       - name: Publish rust_lib_lume
-        if: |
-          github.event_name == 'push' ||
-          github.event.inputs.package == 'rust_lib_lume' ||
-          github.event.inputs.package == 'both'
         working-directory: lume/rust_builder
         run: flutter pub publish --force
 
       # pub.dev pode levar ate 10 minutos para indexar uma nova versao.
       # Aguarda rust_lib_lume estar disponivel antes de publicar lume.
       - name: Wait for rust_lib_lume to be indexed on pub.dev
-        if: |
-          github.event_name == 'push' ||
-          github.event.inputs.package == 'both'
         run: |
           VERSION=$(grep '^version:' lume/rust_builder/pubspec.yaml | awk '{print $2}')
           echo "Polling pub.dev for rust_lib_lume $VERSION..."
@@ -95,10 +71,6 @@ jobs:
       # ── lume ─────────────────────────────────────────────────────────────────
 
       - name: Validate lume CHANGELOG
-        if: |
-          github.event_name == 'push' ||
-          github.event.inputs.package == 'lume' ||
-          github.event.inputs.package == 'both'
         run: |
           VERSION=$(grep '^version:' lume/pubspec.yaml | awk '{print $2}')
           if ! grep -qE "^## $VERSION" lume/CHANGELOG.md; then
@@ -111,10 +83,6 @@ jobs:
       # que nao e aceito no pub.dev. Remove antes de publicar.
       # Tambem troca path dep de rust_lib_lume por versao hosted se necessario.
       - name: Prepare lume/pubspec.yaml for pub.dev
-        if: |
-          github.event_name == 'push' ||
-          github.event.inputs.package == 'lume' ||
-          github.event.inputs.package == 'both'
         run: |
           RUST_VERSION=$(grep '^version:' lume/rust_builder/pubspec.yaml | awk '{print $2}')
 
@@ -128,9 +96,5 @@ jobs:
           cat lume/pubspec.yaml
 
       - name: Publish lume
-        if: |
-          github.event_name == 'push' ||
-          github.event.inputs.package == 'lume' ||
-          github.event.inputs.package == 'both'
         working-directory: lume
         run: flutter pub publish --force
