@@ -1,19 +1,18 @@
-# Publishes rust_lib_lume and/or lume to pub.dev.
+# Publishes rust_lib_lume and/or lume to pub.dev via OIDC (no secrets needed).
 #
-# AUTH SETUP (once):
-#   1. Run locally:  cat ~/.pub-cache/credentials.json
-#   2. Copie o JSON inteiro e salve como secret no GitHub:
-#      Repo → Settings → Secrets → Actions → New secret
-#      Name : PUB_CREDENTIALS
-#      Value: <conteúdo do credentials.json>
+# AUTH SETUP (once, per package):
+#   pub.dev -> package page -> Admin -> Automated publishing -> GitHub Actions
+#   Repository : certainlyWrong/lume_project
+#   Tag pattern : <deixar vazio>   <- vazio permite workflow_dispatch via OIDC;
+#                                     com "v*" apenas push de tag funciona
 #
 # RELEASE FLOW:
-#   1. Bump version em pubspec.yaml (rust_builder + lume se necessário)
+#   1. Bump version em pubspec.yaml (rust_builder + lume se necessario)
 #   2. Adicione entrada ## <version> no CHANGELOG.md de cada pacote
-#   3. git tag v<semver> && git push --tags   ← dispara este workflow
+#   3. git tag v<semver> && git push --tags   <- dispara este workflow
 #
 # MANUAL RUN:
-#   Actions → "Publish to pub.dev" → Run workflow → escolha o pacote
+#   Actions -> "Publish to pub.dev" -> Run workflow -> escolha o pacote
 
 name: Publish to pub.dev
 
@@ -38,6 +37,8 @@ jobs:
   publish:
     name: Publish to pub.dev
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # obrigatorio para OIDC com pub.dev
 
     steps:
       - uses: actions/checkout@v4
@@ -47,11 +48,6 @@ jobs:
         with:
           channel: stable
           cache: true
-
-      - name: Configure pub.dev credentials
-        run: |
-          mkdir -p "$HOME/.pub-cache"
-          echo '${{ secrets.PUB_CREDENTIALS }}' > "$HOME/.pub-cache/credentials.json"
 
       # ── rust_lib_lume ────────────────────────────────────────────────────────
 
@@ -63,8 +59,8 @@ jobs:
         run: |
           VERSION=$(grep '^version:' lume/rust_builder/pubspec.yaml | awk '{print $2}')
           if ! grep -qE "^## $VERSION" lume/rust_builder/CHANGELOG.md; then
-            echo "::error::lume/rust_builder/CHANGELOG.md não menciona a versão $VERSION."
-            echo "Adicione uma seção '## $VERSION' antes de publicar."
+            echo "::error::lume/rust_builder/CHANGELOG.md nao menciona a versao $VERSION."
+            echo "Adicione uma secao '## $VERSION' antes de publicar."
             exit 1
           fi
 
@@ -76,8 +72,8 @@ jobs:
         working-directory: lume/rust_builder
         run: flutter pub publish --force
 
-      # pub.dev pode levar até 10 minutos para indexar uma nova versão.
-      # Aguarda rust_lib_lume estar disponível antes de publicar lume.
+      # pub.dev pode levar ate 10 minutos para indexar uma nova versao.
+      # Aguarda rust_lib_lume estar disponivel antes de publicar lume.
       - name: Wait for rust_lib_lume to be indexed on pub.dev
         if: |
           github.event_name == 'push' ||
@@ -106,14 +102,14 @@ jobs:
         run: |
           VERSION=$(grep '^version:' lume/pubspec.yaml | awk '{print $2}')
           if ! grep -qE "^## $VERSION" lume/CHANGELOG.md; then
-            echo "::error::lume/CHANGELOG.md não menciona a versão $VERSION."
-            echo "Adicione uma seção '## $VERSION' antes de publicar."
+            echo "::error::lume/CHANGELOG.md nao menciona a versao $VERSION."
+            echo "Adicione uma secao '## $VERSION' antes de publicar."
             exit 1
           fi
 
       # lume/pubspec.yaml usa `resolution: workspace` para desenvolvimento local,
-      # que não é aceito no pub.dev. Remove antes de publicar.
-      # Também troca path dep de rust_lib_lume por versão hosted se necessário.
+      # que nao e aceito no pub.dev. Remove antes de publicar.
+      # Tambem troca path dep de rust_lib_lume por versao hosted se necessario.
       - name: Prepare lume/pubspec.yaml for pub.dev
         if: |
           github.event_name == 'push' ||
@@ -128,7 +124,7 @@ jobs:
             "s/  rust_lib_lume:\\n    path: rust_builder/  rust_lib_lume: ^$RUST_VERSION/" \
             lume/pubspec.yaml
 
-          echo "--- lume/pubspec.yaml após preparação ---"
+          echo "--- lume/pubspec.yaml apos preparacao ---"
           cat lume/pubspec.yaml
 
       - name: Publish lume
