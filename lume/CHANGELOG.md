@@ -1,3 +1,9 @@
+## 1.0.4
+
+- Added CocoaPods support for macOS and iOS
+- Added integration tests for Rust function calls
+- Fixed GitHub Actions publish workflow (OIDC auth, CHANGELOG validation)
+
 ## 1.0.2
 
 - Updated to flutter_rust_bridge 2.12.0

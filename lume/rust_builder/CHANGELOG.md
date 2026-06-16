@@ -1,3 +1,7 @@
+## 1.0.4
+
+- Version alignment with lume 1.0.4
+
 ## 1.0.2
 
 - Added zigbuild support for Linux GLIBC version targeting
